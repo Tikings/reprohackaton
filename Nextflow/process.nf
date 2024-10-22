@@ -25,8 +25,19 @@ process downloadFastq {
 	"""
 }
 
+process downloadAnnotation {
+	output :
+	file "annotation.gff"
+
+	script : 
+	"""
+	curl -o annotation.gff $params.linkAnnotation
+	"""
+
+}
 
 workflow {
+	annotations = downloadAnnotation()
 	sraids = channel.from(SRAIDs)
 	fastq_files = downloadFastq(sraids) // ça serait cool de pouvoir output les outputs de la commande dans le stdout pendant que ça fonctionne
 
