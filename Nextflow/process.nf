@@ -25,9 +25,9 @@ process downloadAnnotation {
 
 }
 
-
 process downloadRefGenome {
 	output : 
+	file "reference.fasta"
 
 	script : 
 	""" 
