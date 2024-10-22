@@ -36,7 +36,19 @@ process downloadAnnotation {
 
 }
 
+
+process downloadRefGenome {
+	output : 
+
+	script : 
+	""" 
+	curl -o reference.fasta "$params.linkRefGenome"
+	"""
+}
+
+
 workflow {
+	ref_genome = downloadRefGenome()
 	annotations = downloadAnnotation()
 	sraids = channel.from(SRAIDs)
 	fastq_files = downloadFastq(sraids) // ça serait cool de pouvoir output les outputs de la commande dans le stdout pendant que ça fonctionne
