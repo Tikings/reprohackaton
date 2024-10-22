@@ -11,6 +11,7 @@ SRAIDs = [
 params.thread_nb = 2
 params.linkAnnotation = "https://www.ncbi.nlm.nih.gov/sviewer/viewer.cgi?db=nuccore&report=gff3&id=CP000253.1"
 params.linkRefGenome = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=CP000253.1&rettype=fasta"
+params.RefName = "INDEX_S_aureus" 			// Name of the reference built by the bowtie-build command 
 
 
 process downloadAnnotation {
@@ -31,6 +32,19 @@ process downloadRefGenome {
 	script : 
 	""" 
 	curl -o reference.fasta "$params.linkRefGenome"
+	"""
+}
+
+process creatingGenomeIndex {
+	input : 
+	file ref_genome
+
+	output : 
+	file "*.ebwt" // is it really necessary ? 
+
+	script:
+	"""
+	bowtie-build $ref_genome $params.RefName
 	"""
 }
 
@@ -64,8 +78,11 @@ process trimmingFastQ {
 
 
 
+
 workflow {
 	ref_genome = downloadRefGenome()
+	index_files = creatingGenomeIndex(ref_genome)
+
 	annotations = downloadAnnotation()
 	sraids = channel.from(SRAIDs)
 //	fastq_files = downloadFastq(sraids) // ça serait cool de pouvoir output les outputs de la commande dans le stdout pendant que ça fonctionne
@@ -73,6 +90,5 @@ workflow {
 
 	fastq_files = channel.fromPath("../data/*.fastq")
 	trimmed_fastq_files = trimmingFastQ(fastq_files)
-
 
 }
