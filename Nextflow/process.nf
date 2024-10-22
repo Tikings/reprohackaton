@@ -47,10 +47,31 @@ process downloadRefGenome {
 }
 
 
+process trimmingFastQ {
+	input :
+	file sample
+
+	output : 
+	file "*.txt"
+	file "*.fq"
+
+	script:
+	"""
+	trim_galore -q 20 --phred33 --length 25 $sample
+	"""
+}
+
+
+
 workflow {
 	ref_genome = downloadRefGenome()
 	annotations = downloadAnnotation()
 	sraids = channel.from(SRAIDs)
-	fastq_files = downloadFastq(sraids) // ça serait cool de pouvoir output les outputs de la commande dans le stdout pendant que ça fonctionne
+//	fastq_files = downloadFastq(sraids) // ça serait cool de pouvoir output les outputs de la commande dans le stdout pendant que ça fonctionne
+//	fastq_files.view()
+
+	fastq_files = channel.fromPath("../data/*.fastq")
+	trimmed_fastq_files = trimmingFastQ(fastq_files)
+
 
 }
