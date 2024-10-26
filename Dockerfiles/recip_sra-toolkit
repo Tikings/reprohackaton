@@ -1,0 +1,14 @@
+# Utilise l'image officielle Ubuntu 24.04
+FROM ubuntu:24.04
+
+# Met à jour le système et installe les paquets essentiels, y compris sra-toolkit
+RUN apt-get update && apt-get install -y \
+    sra-toolkit \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Définit le répertoire de travail
+WORKDIR /app
+
+# Exécute le script au démarrage (si nécessaire)
+CMD ["bash"]

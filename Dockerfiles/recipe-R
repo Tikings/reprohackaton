@@ -1,0 +1,36 @@
+# Utiliser une image de base avec R préinstallé
+FROM rocker/r-ver:4.1.0
+
+# Mainteneur de l'image
+LABEL maintainer="votre_email@example.com"
+
+# Mettre à jour le système et installer des dépendances pour DESeq2
+RUN apt-get update && apt-get install -y \
+    libxml2-dev \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    libxt-dev \
+    libpng-dev \
+    libgit2-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Installer les packages nécessaires avec Bioconductor
+RUN R -e "install.packages(c('BiocManager', 'remotes'), repos='https://cloud.r-project.org/')"
+
+# Installer DESeq2 et les autres packages nécessaires pour l'analyse statistique
+RUN R -e "BiocManager::install(version = '3.13')" \
+    && R -e "BiocManager::install(c('DESeq2', 'tximport', 'apeglm', 'biomaRt', 'org.Hs.eg.db'))"
+
+# Installer des packages supplémentaires pour visualisation et statistiques
+RUN R -e "install.packages(c('ggplot2', 'pheatmap', 'dplyr', 'tidyr'), repos='https://cloud.r-project.org/')"
+
+# Définir le répertoire de travail
+WORKDIR /home/rna-seq
+
+# Copie du script d'analyse dans le conteneur
+COPY run_deseq2.R /home/rna-seq/run_deseq2.R
+
+# Commande par défaut à exécuter lors du lancement du conteneur
+CMD ["Rscript", "/home/rna-seq/run_deseq2.R"]
+
