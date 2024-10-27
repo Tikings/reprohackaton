@@ -1,3 +1,7 @@
+
+
+
+
 library(DESeq2)
 library(tximport)
 library(apeglm)
@@ -11,6 +15,7 @@ library(ggrepel)
 
 
 count_data <- as.matrix(read.csv("counts.csv", row.names = 1))
+print(count_data)
 
 # Charger les métadonnées des échantillons
 col_data <- read.csv("coldata.csv", row.names = 1)
