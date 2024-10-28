@@ -231,6 +231,7 @@ La localisation des gènes est obtenue à partir du fichier d'annotation du gén
 - [Lien telechargement subreads](https://sourceforge.net/projects/subread/) : Pour avoir featureCounts
 - [RNA-seq workflow: gene-level exploratory analysis and differential expression](https://master.bioconductor.org/packages/release/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html#building-the-results-table) : Pour comprendre le fonctionnement du workflow
 - [Trueseq Stranded mRNA Guide Reference](https://support.illumina.com/content/dam/illumina-support/documents/documentation/chemistry_documentation/samplepreps_truseq/truseq-stranded-mrna-workflow/truseq-stranded-mrna-workflow-reference-1000000040498-00.pdf) : Kit utilisé dans le papier pour qui explique le processus de séquençage
+- [Link gene name and identifier](https://aureowiki.med.uni-greifswald.de/Downloads)
 
 
 ## Version des outils à utiliser : 
