@@ -173,6 +173,12 @@ Mais avec la version du papier ça ne fonctionne pas, on utilise donc la command
 featureCounts -t gene -g ID -F GTF -T <Nb-CPU> -a <annotation.gff> -o counts.txt <BAM Files>
 ```
 
+Il ajoute également une partie en plus à la commande : 
+
+```sh
+featureCounts -t gene -g ID -F GTF -s 1 -T <Nb-CPU> -a <annotation.gff> -o counts.txt <BAM Files>
+```
+
 `<BAM files>` correspond à tous les fichiers `bam` à la fois (== `*.bam`) \ 
 Et l'output final est un fichier `counts.txt` qui contient les données nécessaires à l'analyse R.
 
