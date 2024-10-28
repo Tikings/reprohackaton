@@ -7,31 +7,37 @@ SRAIDs = [
 "SRR10379726",
 ]
 
+linkAnnotation = "https://www.ncbi.nlm.nih.gov/sviewer/viewer.cgi?db=nuccore&report=gff3&id=CP000253.1"
+linkRefGenome = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=CP000253.1&rettype=fasta"
 
 params.thread_nb = 2
-params.linkAnnotation = "https://www.ncbi.nlm.nih.gov/sviewer/viewer.cgi?db=nuccore&report=gff3&id=CP000253.1"
-params.linkRefGenome = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=CP000253.1&rettype=fasta"
 params.RefName = "INDEX_S_aureus" 			// Name of the reference built by the bowtie-build command 
 
 
 process downloadAnnotation {
+	input : 
+	val link
+
 	output :
 	file "annotation.gff"
 
 	script : 
 	"""
-	curl -o annotation.gff $params.linkAnnotation
+	curl -o annotation.gff "$link"
 	"""
 
 }
 
 process downloadRefGenome {
+	input : 
+	val link
+
 	output : 
 	file "reference.fasta"
 
 	script : 
 	""" 
-	curl -o reference.fasta "$params.linkRefGenome"
+	curl -o reference.fasta "$link"
 	"""
 }
 
@@ -80,10 +86,16 @@ process trimmingFastQ {
 
 
 workflow {
-	ref_genome = downloadRefGenome()
+	RefGenomelink = channel.of(linkRefGenome)
+	// RefGenomelink.view()
+	ref_genome = downloadRefGenome(RefGenomelink)
 	index_files = creatingGenomeIndex(ref_genome)
+	// index_files.view()
 
-	annotations = downloadAnnotation()
+	Annotationlink = channel.of(linkAnnotation)
+	// Annotationlink.view() 
+	annotations = downloadAnnotation(Annotationlink)
+
 	sraids = channel.from(SRAIDs)
 //	fastq_files = downloadFastq(sraids) // ça serait cool de pouvoir output les outputs de la commande dans le stdout pendant que ça fonctionne
 //	fastq_files.view()
