@@ -68,6 +68,9 @@ fasterq-dump --threads <nb-CPUs> --progress <SRAID>
 gzip *.fastq
 ```
 
+La compression des fichiers est efficace, par exemple pour SRR10379721 qui fait 10Gb. Sa compression donne un fichier de 2Gb. Cependant c'est une étape qui prend un temps comsidérable. 
+Voir ce qui est le mieux.
+
 ## 2. Trimming des données reçue : 
 
 C'est un module qui permet de supprimer les read de mauvaise qualité (c'est l'option : `--phred33`) et supprimer les adapters utilisés pour le séquençage. 
@@ -114,6 +117,20 @@ On va donc utiliser la commande suivante qui fonctionne avec la version 1.11 (ce
 ```sh
 cutadapt -e 0.1 -q 20 -O 1 -a AGATCGGAAGAGC SRR10379721.fastq
 ```
+
+On peut utiliser cette commande avec les fichiers compressés mais il faut préciser l'ouput du fichier : 
+
+```sh
+cutadapt -e 0.1 -q 20 -O 1 -a AGATCGGAAGAGC <SRAID>.fastq.gz > <SRAID>_trimmed.fq 
+```
+
+L'output de cette commande reste également assez volumineuse, est ce que ça vaut le coup de la compresser aussi ? \ 
+Ça voudrait dire une baisse de performance (en temps) pour le workflow mais on aurait un meilleur management des données disponibles.
+
+J'ai essayé de faire le différence des fichiers en sortie en utilisant trim_galore et cutadapt mais ça m'a pris trop de temps et j'ai du arreter... 
+
+Avec la version 1.11 (celle du papier), la commande fonctionne bien (aussi bien avec les fichiers commpressés qu'avec ceux qui ne le sont pas). 
+
 
 ## 3. Mapping avec bowtie
 
