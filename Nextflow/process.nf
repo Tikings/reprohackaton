@@ -88,21 +88,49 @@ process trimmingFastQ {
 
 
 workflow {
+
+	// Downloading Reference genome --------------------------------
+
 	RefGenomelink = channel.of(linkRefGenome)
 	// RefGenomelink.view()
+
+	// Creating the index 
 	ref_genome = downloadRefGenome(RefGenomelink)
 	index_files = creatingGenomeIndex(ref_genome)
 	// index_files.view()
 
+	// Downloading annotations --------------------------------
+
 	Annotationlink = channel.of(linkAnnotation)
 	// Annotationlink.view() 
 	annotations = downloadAnnotation(Annotationlink)
+ 
+	// Running locally --------------------------------
 
-	sraids = channel.from(SRAIDs)
-//	fastq_files = downloadFastq(sraids) // ça serait cool de pouvoir output les outputs de la commande dans le stdout pendant que ça fonctionne
-//	fastq_files.view()
+	// Retrieving the files path
+	fastq_files = channel.fromPath("../data/fastq_files/*.fastq")
+	// Getting the name of the fastq files
+	fastq_names = fastq_files.map{v -> v.getSimpleName()}
+	// Creating a tuple with the name
+	tuple_fastq= fastq_names.merge(fastq_files)
+	tuple_fastq.view()
 
-	fastq_files = channel.fromPath("../data/*.fastq")
-	trimmed_fastq_files = trimmingFastQ(fastq_files)
+
+	// Downloading from data_bases --------------------------------
+
+// 	sraids = channel.fromList(SRAIDs)
+// 	// Download files from database
+// 	fastq_files = downloadFastq(sraids) // ça serait cool de pouvoir output les outputs de la commande dans le stdout pendant que ça fonctionne
+// 	fastq_files.view()
+// 	// Getting the name of the fastq files
+// 	fastq_names = fastq_files.map{v -> v.getSimpleName()}
+// 	// Creating a tuple with the name
+// 	tuple_fastq= fastq_names.merge(fastq_files)
+
+	// Trimming files --------------------------------
+
+	fastq_trimmed = trimmingFastQ(tuple_fastq)
+	fastq_trimmed.view()
+
 
 }
