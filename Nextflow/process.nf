@@ -10,43 +10,45 @@ SRAIDs = [
 linkAnnotation = "https://www.ncbi.nlm.nih.gov/sviewer/viewer.cgi?db=nuccore&report=gff3&id=CP000253.1"
 linkRefGenome = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=CP000253.1&rettype=fasta"
 
-params.thread_nb = 2
+params.thread_nb = 2 // To change later
 params.RefName = "INDEX_S_aureus" 			// Name of the reference built by the bowtie-build command 
 
 
+// Downloading annotation file to associate the location to genes 
 process downloadAnnotation {
 	input : 
-	val link
+	val link  // Link to NCBI
 
 	output :
-	file "annotation.gff"
+	file "annotation.gff" // I chose the name but it can be changed
 
-	script : 
+	script :  // WARNING this function may need to be changed if it is used on linux (wget might not exist on some distros)
 	"""
 	curl -o annotation.gff "$link"
 	"""
 
 }
 
+// Downloading the reference genome to create the index files
 process downloadRefGenome {
 	input : 
-	val link
+	val link // Link to NCBI
 
 	output : 
-	file "reference.fasta"
+	file "reference.fasta"  // I chose the name but it can be changed
 
-	script : 
+	script :  // WARNING this function may need to be changed if it is used on linux (wget might not exist on some distros)
 	""" 
 	curl -o reference.fasta "$link"
 	"""
 }
 
-process creatingGenomeIndex {
+process creatingGenomeIndex { // Creating the genome index that is required to run the mapping command
 	input : 
-	file ref_genome
+	file ref_genome // fasta file
 
 	output : 
-	file "*.ebwt" // is it really necessary ? 
+	file "*.ebwt" 
 
 	script:
 	"""
