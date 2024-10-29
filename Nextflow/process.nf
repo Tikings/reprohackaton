@@ -56,17 +56,17 @@ process creatingGenomeIndex { // Creating the genome index that is required to r
 	"""
 }
 
-process downloadFastq {
+process downloadFastq {    // Downloading fastq files from the NCBI database 
 
 	input :
-	val sraid
+	val sraid // One SRAID
 
 	output : 
 	file "*.fastq"
 
 	script:
 	"""
-	fasterq-dump --threads $params.thread_nb --progress $sraid
+	fasterq-dump --threads $params.thread_nb $sraid
 	"""
 }
 
