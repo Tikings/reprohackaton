@@ -12,6 +12,7 @@ linkRefGenome = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nu
 
 params.thread_nb = 2 // To change later
 params.RefName = "INDEX_S_aureus" 			// Name of the reference built by the bowtie-build command 
+params.adapter_seq = "AGATCGGAAGAGC"
 
 
 // Downloading annotation file to associate the location to genes 
@@ -72,15 +73,14 @@ process downloadFastq {    // Downloading fastq files from the NCBI database
 
 process trimmingFastQ {
 	input :
-	file sample
+	tuple val(sraid),file(sample) 
 
 	output : 
-	file "*.txt"
-	file "*.fq"
+	file "*.fq" 
 
-	script:
+	shell:
 	"""
-	trim_galore -q 20 --phred33 --length 25 $sample
+	cutadapt -e 0.1 -q 20 -O 1 -a !{params.adapter_seq} !{sample} > !{sraid}_trimmed.fq  
 	"""
 }
 
