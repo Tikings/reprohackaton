@@ -1,24 +1,53 @@
+if (!require("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
 
+# Install Bioconductor packages
+BiocManager::install("DESeq2")
+BiocManager::install("tximport")
+BiocManager::install("apeglm")
+BiocManager::install("biomaRt")
 
-
-
+library(ggplot2)
 library(DESeq2)
+library(dplyr)
+library(ggrepel)
+library(pheatmap)
+library(httr)
+
+
 library(tximport)
 library(apeglm)
-library(ggplot2)
-library(pheatmap)
-library(dplyr)
 library(biomaRt)
-library(httr)
-library(ggrepel)
 
 
 
-count_data <- as.matrix(read.csv("counts.csv", row.names = 1))
-print(count_data)
+count_data <- as.matrix(read.table("counts_final.txt", 
+                                   header = TRUE, 
+                                   row.names = 1, 
+                                   sep = "\t", 
+                                   skip = 1)[, -c(1:5)])
 
-# Charger les métadonnées des échantillons
-col_data <- read.csv("coldata.csv", row.names = 1)
+#print(count_data)
+
+
+sample_names <- colnames(count_data)
+sample_conditions <- c(
+  "SRR10379721.bam" = "persister",
+  "SRR10379722.bam" = "persister",
+  "SSR10379723.bam" = "persister", 
+  #erreur potentielle du T mais ca va être corrigé le SRR est tapé à la main
+  "SRR10379723.bam" = "persister",
+  "SRR10379724.bam" = "control",
+  "SRR10379725.bam" = "control",
+  "SRR10379726.bam" = "control" )
+
+col_data <- data.frame(
+  row.names = sample_names,
+  condition = sample_conditions[sample_names] )
+
+#print(col_data)
+
 
 dds <- DESeqDataSetFromMatrix(countData = count_data, colData = col_data, design = ~ condition)
 
@@ -26,6 +55,35 @@ dds <- DESeq(dds)
 res <- results(dds)
 summary(res)
 
+
+res <- lfcShrink(dds, coef="condition_persister_vs_control", type="apeglm") 
+
+plotMA(res, ylim=c(-5,5))
+
+
+
+
+
+res_df <- as.data.frame(res)
+res_df$significant <- ifelse(res_df$padj < 0.05, "Significant", "Non-significant")
+
+print(res_df)
+
+# Create the customized MA plot
+ggplot(res_df, aes(x = baseMean, y = log2FoldChange)) +
+  geom_point(aes(color = significant), size = 1.0, alpha=0.5) + # Adjust point size as needed
+  scale_color_manual(values = c("Significant" = "red","Non-significant" = "black")) +
+  scale_x_log10() +  # Log scale for base mean
+  geom_hline(yintercept = 0, linetype = "dashed") +  # Add a dashed line at y = 0
+  theme_minimal() +  # Use a minimal theme for a clean look
+  labs(x = "Mean of normalized counts", y = "Log2 fold change") +
+  theme(
+    legend.position = "none",  # Remove legend if not needed
+    panel.grid.minor = element_blank()  # Clean up minor grid lines
+  ) +
+  ylim(c(-4, 4)) # Set the y-axis limits
+
+##### à suivre 
 
 
 
@@ -70,16 +128,11 @@ resultsNames(dds)
 
 
 #coef names à changer
-res <- lfcShrink(dds, coef="condition_treated_vs_control", type="apeglm") 
 # quel type utiliser : apeglm, ashr, normal ?
-
-resultsNames(dds)
-
-
-
+res <- lfcShrink(dds, coef="condition_persister_vs_control", type="apeglm") 
 
 plotMA(res, ylim=c(-5,5))
-ggsave("MA_plot.png")
+#ggsave("MA_plot.png")
 
 
 ggplot(as.data.frame(res), aes(x = log2(baseMean), y = log2FoldChange, color = padj < 0.05)) +
