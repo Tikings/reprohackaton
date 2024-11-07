@@ -1,0 +1,9 @@
+# Recipe for featureCounts
+FROM ubuntu:20.04
+
+RUN apt-get update && apt-get install -y curl tar \
+	&& curl -o subread-1.4.6-p3.tar.gz https://phoenixnap.dl.sourceforge.net/project/subread/subread-1.4.6-p3/subread-1.4.6-p3-Linux-x86_64.tar.gz?viasf=1 \
+	&& tar -xvf subread-1.4.6-p3.tar.gz \
+	&& ln -s /subread-1.4.6-p3-Linux-x86_64/bin/featureCounts /usr/bin/featureCounts
+
+
