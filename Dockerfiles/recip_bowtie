@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-RUN curl -O https://cyfuture.dl.sourceforge.net/project/bowtie-bio/bowtie/0.12.7/bowtie-0.12.7-linux-x86_64.zip?viasf=1 && unzip bowtie-0.12.7-linux-x86_64.zip && ln -s /app/bowtie-0.12.7/bowtie /usr/bin/bowtie && ln -s /app/bowtie-0.12.7/bowtie /usr/bin/bowtie-build
+RUN curl -O https://cyfuture.dl.sourceforge.net/project/bowtie-bio/bowtie/0.12.7/bowtie-0.12.7-linux-x86_64.zip?viasf=1 && unzip bowtie-0.12.7-linux-x86_64.zip && ln -s /app/bowtie-0.12.7/bowtie /usr/bin/bowtie && ln -s /app/bowtie-0.12.7/bowtie-build /usr/bin/bowtie-build
 
 
 
