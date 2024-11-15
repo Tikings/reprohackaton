@@ -1,0 +1,15 @@
+# Use the Python 2.7 slim image as a base
+FROM --platform=linux/amd64 python:2.7-slim
+
+# Set a working directory (optional but good practice)
+WORKDIR /app
+
+# Install required dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    gcc libbz2-dev liblzma-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Cutadapt 1.11
+RUN pip install --no-cache-dir cutadapt==1.11
