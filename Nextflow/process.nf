@@ -1,10 +1,10 @@
 SRAIDs = [
 "SRR10379721",
 "SRR10379722",
-"SRR10379723",
-"SRR10379724",
-"SRR10379725",
-"SRR10379726",
+//"SRR10379723",
+//"SRR10379724",
+//"SRR10379725",
+//"SRR10379726",
 ]
 
 linkAnnotation = "https://www.ncbi.nlm.nih.gov/sviewer/viewer.cgi?db=nuccore&report=gff3&id=CP000253.1"
@@ -108,24 +108,24 @@ workflow {
 	// Running locally --------------------------------
 
 	// Retrieving the files path
-	fastq_files = channel.fromPath("../data/fastq_files/*.fastq")
+//	fastq_files = channel.fromPath("../data/fastq_files/*.fastq")
 	// Getting the name of the fastq files
-	fastq_names = fastq_files.map{v -> v.getSimpleName()}
+//	fastq_names = fastq_files.map{v -> v.getSimpleName()}
 	// Creating a tuple with the name
-	tuple_fastq= fastq_names.merge(fastq_files)
-	tuple_fastq.view()
+//	tuple_fastq= fastq_names.merge(fastq_files)
+//	tuple_fastq.view()
 
 
 	// Downloading from data_bases --------------------------------
 
-// 	sraids = channel.fromList(SRAIDs)
+ 	sraids = channel.fromList(SRAIDs)
 // 	// Download files from database
-// 	fastq_files = downloadFastq(sraids) // ça serait cool de pouvoir output les outputs de la commande dans le stdout pendant que ça fonctionne
-// 	fastq_files.view()
+ 	fastq_files = downloadFastq(sraids) // ça serait cool de pouvoir output les outputs de la commande dans le stdout pendant que ça fonctionne
+ 	fastq_files.view()
 // 	// Getting the name of the fastq files
-// 	fastq_names = fastq_files.map{v -> v.getSimpleName()}
+ 	fastq_names = fastq_files.map{v -> v.getSimpleName()}
 // 	// Creating a tuple with the name
-// 	tuple_fastq= fastq_names.merge(fastq_files)
+ 	tuple_fastq= fastq_names.merge(fastq_files)
 
 	// Trimming files --------------------------------
 
