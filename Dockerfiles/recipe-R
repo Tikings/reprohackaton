@@ -1,36 +1,64 @@
-# Utiliser une image de base avec R préinstallé
-FROM rocker/r-ver:4.1.0
+# Image initiale avec ubuntu
+FROM ubuntu:20.04
 
-# Mainteneur de l'image
-LABEL maintainer="votre_email@example.com"
+# Pour ne pas avoir de fenetre interactive qui pop lors de l'installation des librairies 
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Mettre à jour le système et installer des dépendances pour DESeq2
-RUN apt-get update && apt-get install -y \
-    libxml2-dev \
-    libssl-dev \
-    libcurl4-openssl-dev \
-    libxt-dev \
-    libpng-dev \
-    libgit2-dev \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Installation des dépendences nécessaires 
+RUN apt-get update 
+RUN apt-get install -y  \
+curl \
+make \
+zlib1g-dev  \
+zlib1g  \
+gfortran  \
+g++  \
+gcc  \
+aptitude  \
+fort77  \
+libbz2-dev  \
+liblzma-dev  \
+libpcre3  \
+libpcre3-dev  \
+libcurl4  \
+libcurl4-openssl-dev  \
+default-jdk  \
+texlive-latex-base  \
+libxml2-dev  \
+libpng-dev  \
+graphviz  \
+libgraphviz-dev  \
+libssl-dev
 
-# Installer les packages nécessaires avec Bioconductor
-RUN R -e "install.packages(c('BiocManager', 'remotes'), repos='https://cloud.r-project.org/')"
+# Installation des dépendences nécessaires
+RUN aptitude install -y libreadline-dev
 
-# Installer DESeq2 et les autres packages nécessaires pour l'analyse statistique
-RUN R -e "BiocManager::install(version = '3.13')" \
-    && R -e "BiocManager::install(c('DESeq2', 'tximport', 'apeglm', 'biomaRt', 'org.Hs.eg.db'))"
+# Téléchargement de la bonne version de R : 3.4.1 
+RUN curl -o R_3-4-1.tar.gz https://cran.rstudio.com/src/base/R-3/R-3.4.1.tar.gz && tar -xzf R_3-4-1.tar.gz && rm R_3-4-1.tar.gz 
 
-# Installer des packages supplémentaires pour visualisation et statistiques
-RUN R -e "install.packages(c('ggplot2', 'pheatmap', 'dplyr', 'tidyr'), repos='https://cloud.r-project.org/')"
+# Installation 
+RUN cd R-3.4.1/ && ./configure && make && make install
 
-# Définir le répertoire de travail
-WORKDIR /home/rna-seq
+# Installation de packages 
+RUN R -e "install.packages(c('tidyverse','ggrepel') , repos = 'https://packagemanager.posit.co/cran/__linux__/focal/2018-01-11')"
 
-# Copie du script d'analyse dans le conteneur
-COPY run_deseq2.R /home/rna-seq/run_deseq2.R
+# Installation de BiocInstaller (c'est l'ancêtre de BiocManager qui était la seule option pour utiliser Bioconductor à l'époque)
+RUN R -e "install.packages('BiocInstaller', repos = 'https://bioconductor.org/packages/3.5/bioc/')"
 
-# Commande par défaut à exécuter lors du lancement du conteneur
-CMD ["Rscript", "/home/rna-seq/run_deseq2.R"]
+# Installation des dépendences de Rgraphviz
+RUN R -e "BiocInstaller::biocLite('graph')"
+
+# Téléchargement de Rgraphviz à la source 
+# Ce package est problématique à installer ne utilisant biocLite (il a du mal à trouver un header file), cette manière d'installer résout le problème
+RUN curl -O https://www.bioconductor.org/packages/release/bioc/src/contrib/Rgraphviz_2.50.0.tar.gz && tar -xzf Rgraphviz_2.50.0.tar.gz && rm Rgraphviz_2.50.0.tar.gz
+
+# Installation depuis la source
+RUN R -e "install.packages('Rgraphviz/', repos = NULL, type='source')"
+
+# Installation de EnrichmentBrowser et DESeq2 (qui est une dépendence de EnrichmentBrowser)
+# Les version sont : DESeq2 1.16.1 et EnrichmentBrowser 2.6.3 
+RUN R -e "options(repos = c(CRAN = 'https://packagemanager.posit.co/cran/__linux__/focal/2018-01-11')) ; BiocInstaller::biocLite('EnrichmentBrowser')"
+
+
+
 
