@@ -49,10 +49,10 @@ process creatingGenomeIndex { // Creating the genome index that is required to r
 	file ref_genome // fasta file
 
 	output : 
-	file "*.ebwt" 
+	tuple val($params.RefName), file("*.ebwt") 
 
-	publishDir: 
-        "~/repro_files/indexes", mode: 'copy' //Necessite la creation du fichier en amont
+
+	
 	
 	script:
 	"""
@@ -92,15 +92,15 @@ process trimmingFastQ {
 
 process MappingFQ_samtools{
         input :
+	tuple val(RefName),file("*.ebwt")
         tuple val(sraid),file(sample)
-
+	
         output :
         file « *.bam »
 
         shell:
         """
-	export BOWTIE_INDEXES= /tmp/repro_files/ && \
-        bowtie -p 2 -S !{params.RefName} !{sample} | samtools sort  > !{sraid}.bam
+        bowtie -p 2 -S !{RefName} !{sample} | samtools sort  > !{sraid}.bam
         """
 }
 workflow {
@@ -150,7 +150,7 @@ workflow {
 
 	// Mapping ————————————————————
 	fastq_trimmed_names = fastq_trimmed.map{v -> v.getSimpleName()}
-	tuple_fastq_trimmed= fastq_trimmed_names.merge(fastq_files)
+	tuple_fastq_trimmed= fastq_trimmed_names.merge(fastq_trimmed)
 
-	bam_files=MappingFQ_samtools(tuple_fastq_trimmed)
+	bam_files=MappingFQ_samtools(index_files,tuple_fastq_trimmed)
 }
