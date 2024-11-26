@@ -7,6 +7,7 @@ library(httr)
 library(readr)
 library(tidyverse)
 library(EnrichmentBrowser)
+library(Cairo)
 
 
 count_data <- as.matrix(read.table("./counts_final.txt", 
@@ -47,7 +48,7 @@ res_df$significant <- ifelse(res_df$padj < 0.05,
                              "Non-significant")
 
 
-ggplot(res_df, aes(x = baseMean, y = log2FoldChange)) +
+MA_plot1 <- ggplot(res_df, aes(x = baseMean, y = log2FoldChange)) +
   geom_point(aes(color = significant), size = 2.0, alpha=0.5) + 
   scale_color_manual(values = c("Significant" = "red","Non-significant" = "black")) +
   scale_x_log10() +  
@@ -59,7 +60,7 @@ ggplot(res_df, aes(x = baseMean, y = log2FoldChange)) +
   ) + ylim(c(-4, 4)) 
 
 
-ggsave("MA_plot_1.png")
+ggsave("./MA_plot_1.pdf", plot = MA_plot1, width = 8 , height = 8, device ="pdf")
 
 
 
@@ -67,7 +68,7 @@ ggsave("MA_plot_1.png")
 
 # pas de lfc shrink du tout ? l'image sans semble bcp plus proche de celle du papier que celle avec
 
-res <- lfcShrink(dds, coef="condition_persister_vs_control", type="apeglm") 
+#res <- lfcShrink(dds, coef="condition_persister_vs_control", type="normal") 
 # quel type utiliser : apeglm, ashr, normal ?
 
 
@@ -75,16 +76,19 @@ res <- lfcShrink(dds, coef="condition_persister_vs_control", type="apeglm")
 
 
 
-gene_annotations <- read_csv("NCTC8325.csv", show_col_types = FALSE)
+gene_annotations <- read.table("NCTC8325.csv", header = TRUE, sep = "\t")
+print(dim(gene_annotations))
 
-gene_annotations <- gene_annotations %>%
-  separate(
-    col = `locus tag;pan gene symbol;symbol;synonym;Gene ID` ,
-    into = c("locus_tag", "pan_gene_symbol", "symbol", "synonym", 
-             "Gene_ID"),
-    sep = ";",
-    fill = "right"
-  )
+# gene_annotations <- gene_annotations %>%
+#   separate(
+#     col = "locus tag;pan gene symbol;symbol;synonym;Gene ID" ,
+#     into = c("locus_tag", "pan_gene_symbol", "symbol", "synonym", 
+#              "Gene_ID"),
+#     sep = ";",
+#     fill = "right"
+#   )
+
+colnames(gene_annotations) <-  c("locus_tag", "pan_gene_symbol", "symbol", "synonym", "Gene_ID")
 
 
 
