@@ -77,61 +77,108 @@ process trimmingFastQ {
 	tuple val(sraid),file(sample) 
 
 	output : 
-	file "*.fq" 
+	file "*.fastq.gz" 
 
 	shell:
 	"""
-	cutadapt -e 0.1 -q 20 -O 1 -a !{params.adapter_seq} !{sample} > !{sraid}_trimmed.fq  
+	cutadapt -e 0.1 -q 20 -O 1 -a !{params.adapter_seq} -o !{sraid}_trimmed.fastq.gz !{sample}
 	"""
 }
+
+
+process MappingFQ_samtools{
+        input :
+
+        tuple val(sraid),file(sample),val(RefName),file(index_files)
+
+
+        output :
+        file "*.bam"
+
+        shell:
+        """
+        bowtie -S !{RefName} <(gunzip -c !{sample}) | samtools sort > !{sraid}.bam
+        """
+
+}
+
+
+process FeatureCount{
+        input :
+
+        val list_bam
+        file annotation
+
+        output :
+        file "counts.txt"
+
+        shell:
+        """
+        featureCounts -t gene -g ID -F GTF -s 1 -a !{annotation} -o counts.txt !{list_bam.join(' ')}
+        """
+}
+
+
+process processR{
+        input :
+        file count
+        file script_r
+        output :
+        file "output.log"
+
+
+        shell:
+        """
+        R -f !{script_r}  > output.log
+        """
+}
+
 
 
 
 
 workflow {
 
-	// Downloading Reference genome --------------------------------
+        // Downloading Reference genome --------------------------------
+        RefGenomelink = channel.of(linkRefGenome)
 
-	RefGenomelink = channel.of(linkRefGenome)
-	// RefGenomelink.view()
-
-	// Creating the index 
-	ref_genome = downloadRefGenome(RefGenomelink)
-	index_files = creatingGenomeIndex(ref_genome)
-	// index_files.view()
-
-	// Downloading annotations --------------------------------
-
-	Annotationlink = channel.of(linkAnnotation)
-	// Annotationlink.view() 
-	annotations = downloadAnnotation(Annotationlink)
- 
-	// Running locally --------------------------------
-
-	// Retrieving the files path
-	fastq_files = channel.fromPath("../data/fastq_files/*.fastq")
-	// Getting the name of the fastq files
-	fastq_names = fastq_files.map{v -> v.getSimpleName()}
-	// Creating a tuple with the name
-	tuple_fastq= fastq_names.merge(fastq_files)
-	tuple_fastq.view()
+        // Creating the index --------------------------------
+        ref_genome = downloadRefGenome(RefGenomelink)
+        index_files = creatingGenomeIndex(ref_genome)
 
 
-	// Downloading from data_bases --------------------------------
-
-// 	sraids = channel.fromList(SRAIDs)
-// 	// Download files from database
-// 	fastq_files = downloadFastq(sraids) // ça serait cool de pouvoir output les outputs de la commande dans le stdout pendant que ça fonctionne
-// 	fastq_files.view()
-// 	// Getting the name of the fastq files
-// 	fastq_names = fastq_files.map{v -> v.getSimpleName()}
-// 	// Creating a tuple with the name
-// 	tuple_fastq= fastq_names.merge(fastq_files)
-
-	// Trimming files --------------------------------
-
-	fastq_trimmed = trimmingFastQ(tuple_fastq)
-	fastq_trimmed.view()
+        // Downloading annotations --------------------------------
+        Annotationlink = channel.of(linkAnnotation)
+        annotations = downloadAnnotation(Annotationlink)
 
 
+        // Downloading from data_bases --------------------------------
+
+        sraids = channel.fromList(SRAIDs)
+        // Download files from database
+        fastq_files = downloadFastq(sraids) 
+        // Creating a tuple with the name
+        tuple_fastq= fastq_files.map{v -> [v.getSimpleName(), v]}
+
+        // Trimming files --------------------------------
+
+        fastq_trimmed = trimmingFastQ(tuple_fastq)
+
+        // Mapping ————————————————————
+
+        tuple_fastq_trimmed= fastq_trimmed.map{v -> [v.getSimpleName() , v]}
+        combined_tuple=tuple_fastq_trimmed.combine(index_files) // pour pouvoir utiliser l'index plusieurs fois
+
+        bam_files=MappingFQ_samtools(combined_tuple)
+        list_bam=bam_files.collect()
+
+        count_file=FeatureCount(list_bam,annotations)
+
+        // R Analysis ————————————————————
+
+        //output_file=processR(count_file)
+
+        script_r=channel.fromPath("./script.R")
+        script_r.view()
+        output_2=processR(count_file,script_r)
 }
