@@ -38,7 +38,7 @@ process downloadRefGenome {
 	output : 
 	file "reference.fasta"  // I chose the name but it can be changed
 
-	script :  // WARNING this function may need to be changed if it is used on linux (wget might not exist on some distros)
+	script : 
 	""" 
 	curl -o reference.fasta "$link"
 	"""
@@ -63,11 +63,12 @@ process downloadFastq {    // Downloading fastq files from the NCBI database
 	val sraid // One SRAID
 
 	output : 
-	file "*.fastq"
+	file "*.fastq.gz"
 
-	script:
+	shell:
 	"""
-	fasterq-dump --threads $params.thread_nb $sraid
+	fasterq-dump !{sraid}
+	gzip !{sraid}.fastq
 	"""
 }
 
