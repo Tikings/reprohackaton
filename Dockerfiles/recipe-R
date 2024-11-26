@@ -1,5 +1,5 @@
 # Image initiale avec ubuntu
-FROM ubuntu:20.04
+FROM --platform=linux/amd64 ubuntu:20.04 
 
 # Pour ne pas avoir de fenetre interactive qui pop lors de l'installation des librairies 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -28,7 +28,9 @@ libxml2-dev  \
 libpng-dev  \
 graphviz  \
 libgraphviz-dev  \
-libssl-dev
+libssl-dev \
+r-base-dev \
+libcairo-dev
 
 # Installation des dépendences nécessaires
 RUN aptitude install -y libreadline-dev
@@ -40,7 +42,7 @@ RUN curl -o R_3-4-1.tar.gz https://cran.rstudio.com/src/base/R-3/R-3.4.1.tar.gz 
 RUN cd R-3.4.1/ && ./configure && make && make install
 
 # Installation de packages 
-RUN R -e "install.packages(c('tidyverse','ggrepel') , repos = 'https://packagemanager.posit.co/cran/__linux__/focal/2018-01-11')"
+RUN R -e "install.packages(c('tidyverse','ggrepel', 'pheatmap', 'Cairo') , repos = 'https://packagemanager.posit.co/cran/__linux__/focal/2018-01-11')"
 
 # Installation de BiocInstaller (c'est l'ancêtre de BiocManager qui était la seule option pour utiliser Bioconductor à l'époque)
 RUN R -e "install.packages('BiocInstaller', repos = 'https://bioconductor.org/packages/3.5/bioc/')"
@@ -53,7 +55,7 @@ RUN R -e "BiocInstaller::biocLite('graph')"
 RUN curl -O https://www.bioconductor.org/packages/release/bioc/src/contrib/Rgraphviz_2.50.0.tar.gz && tar -xzf Rgraphviz_2.50.0.tar.gz && rm Rgraphviz_2.50.0.tar.gz
 
 # Installation depuis la source
-RUN R -e "install.packages('Rgraphviz/', repos = NULL, type='source')"
+RUN R -e "install.packages('Rgraphviz/', repos = NULL, type='source')" && rm -rf Rgraphviz
 
 # Installation de EnrichmentBrowser et DESeq2 (qui est une dépendence de EnrichmentBrowser)
 # Les version sont : DESeq2 1.16.1 et EnrichmentBrowser 2.6.3 
