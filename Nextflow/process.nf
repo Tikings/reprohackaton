@@ -49,7 +49,7 @@ process creatingGenomeIndex { // Creating the genome index that is required to r
 	file ref_genome // fasta file
 
 	output : 
-	file "*.ebwt" 
+        tuple val(params.RefName), file("*.ebwt")
 
 	script:
 	"""
