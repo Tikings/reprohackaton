@@ -3,7 +3,7 @@ FROM python:2.7-slim
 
 # Dependencies
 RUN apt-get update && \
-    apt-get install -y gcc libbz2-dev liblzma-dev && \
+    apt-get install -y gcc libbz2-dev liblzma-dev procps && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Cutadapt 1.11
