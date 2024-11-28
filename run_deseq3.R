@@ -82,7 +82,7 @@ ggsave("MA_plot_1.pdf",plot=p,device='pdf', width=10,height=8)
 
 # pas de lfc shrink du tout ? l'image sans semble bcp plus proche de celle du papier que celle avec
 
-res <- lfcShrink(dds, coef="condition_persister_vs_control", type="apeglm") 
+#res <- lfcShrink(dds, coef="condition_persister_vs_control", type="apeglm") 
 # quel type utiliser : apeglm, ashr, normal ?
 
 
@@ -184,10 +184,10 @@ p2 <- p2 +
     size = 6, 
     max.overlaps = 20,
     color = "black",              
-    box.padding = 0.8,            
+    box.padding = 1,            
     point.padding = 0.5,          
     segment.color = "black",      
-    segment.size = 0.5            
+    segment.size = 2            
   
   )
 
