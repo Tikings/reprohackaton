@@ -151,7 +151,7 @@ process downloadAureoWiki {
 
 // Processing
 process processR{
-	publichDir params.pub_dir
+	publishDir params.pub_dir
 
         input :
         file count // Count file 
