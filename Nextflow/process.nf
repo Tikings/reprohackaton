@@ -1,17 +1,25 @@
-SRAIDs = [
-"SRR10379721",
-"SRR10379722",
-"SRR10379723",
-"SRR10379724",
-"SRR10379725",
-"SRR10379726",
-]
+// Dossier pour l'enregistrement des données finales 
+params.pub_dir = "../results/"
 
+// Tous les SRAIDs des données disponibles sur NCBI
+SRAIDs = [ "SRR10379721", "SRR10379722", "SRR10379723", "SRR10379724", "SRR10379725", "SRR10379726" ]
+
+// ______ Liens utiles ______
+
+// Fichier d'annotation du génome
 linkAnnotation = "https://www.ncbi.nlm.nih.gov/sviewer/viewer.cgi?db=nuccore&report=gff3&id=CP000253.1"
+
+// Génome de référence
 linkRefGenome = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=CP000253.1&rettype=fasta"
 
-params.thread_nb = 2 // To change later
-params.RefName = "INDEX_S_aureus" 			// Name of the reference built by the bowtie-build command 
+// Méthode pour récupérer les données AureoWiki
+link_Aureo_wiki_php = "'https://aureowiki.med.uni-greifswald.de/extensions/AureoDownload/download.php'"
+data_aureo_request = "'gsiStrainSelection%5B%5D=NCTC8325%3A0&gsiColumnSelection%5B%5D=panlocus&gsiColumnSelection%5B%5D=pansymbol&gsiColumnSelection%5B%5D=symbol&gsiColumnSelection%5B%5D=synonym&gsiColumnSelection%5B%5D=geneGI&includeLinesWithoutData=1&download_token_hidden_field=1732555537548&button=Download+as+Text+%28.tsv%29'"
+
+// Nom que l'on va donner à l'index bowtie 
+params.RefName = "INDEX_S_aureus"
+
+// Séquence d'adapter
 params.adapter_seq = "AGATCGGAAGAGC"
 
 
@@ -21,7 +29,7 @@ process downloadAnnotation {
 	val link  // Link to NCBI
 
 	output :
-	file "annotation.gff" // I chose the name but it can be changed
+	file "annotation.gff" 
 
 	script :  // WARNING this function may need to be changed if it is used on linux (wget might not exist on some distros)
 	"""
@@ -72,6 +80,7 @@ process downloadFastq {    // Downloading fastq files from the NCBI database
 	"""
 }
 
+// Trimming the files
 process trimmingFastQ {
 	input :
 	tuple val(sraid),file(sample) 
@@ -85,7 +94,7 @@ process trimmingFastQ {
 	"""
 }
 
-
+// Mapping the sequences
 process MappingFQ_samtools{
         input :
 
@@ -103,14 +112,17 @@ process MappingFQ_samtools{
 }
 
 
+// Counting 
 process FeatureCount{
+	publishDir params.pub_dir
+
         input :
 
-        val list_bam
-        file annotation
+        val list_bam    // All the bam files 
+        file annotation // Annotation file
 
         output :
-        file "counts.txt"
+        file "counts.txt" // Count files 
 
         shell:
         """
@@ -119,22 +131,41 @@ process FeatureCount{
 }
 
 
-process processR{
-        input :
-        file count
-        file script_r
-        output :
-        file "output.log"
+// Downloading the AureoWiki file
+process downloadAureoWiki {
 
+	input :
+	val data // Data for the php request
+	val link_php //Link to the php script
 
-        shell:
-        """
-        R -f !{script_r}  > output.log
-        """
+	output :
+	file "NCTC8325.csv"
+
+	script :
+	"""
+	curl -X POST $link_php --data $data -o NCTC8325.csv
+	"""
+
 }
 
 
+// Processing
+process processR{
+	publichDir params.pub_dir
 
+        input :
+        file count // Count file 
+        file script_r // R script 
+	file NCTC8325 
+
+        output :
+        file "*.pdf" 
+
+        shell:
+        """
+        R -f !{script_r} 
+        """
+}
 
 
 workflow {
@@ -176,9 +207,14 @@ workflow {
 
         // R Analysis ————————————————————
 
-        //output_file=processR(count_file)
+	link_php = channel.of(link_Aureo_wiki_php)
+	data_request = channel.of(data_aureo_request)
+	NCTC8325 = downloadAureoWiki(data_request, link_php)
 
-        script_r=channel.fromPath("./script.R")
-        script_r.view()
-        output_2=processR(count_file,script_r)
+        script_r=channel.fromPath("../Plotting_script.R")
+
+
+	// Plotting
+	MAplot = processR(count_file,script_r, NCTC8325)
+
 }
