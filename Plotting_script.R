@@ -71,10 +71,9 @@ ggsave("MA_plot_1.pdf",plot=p,device='pdf', width=10,height=8)
 # ________________________________________________
 
 # Récupération des annotations de gènes 
-gene_annotations <- read.table("NCTC8325.csv", sep = "\t", header = TRUE)
-
+gene_annotations <- read.table("NCTC8325.csv", sep = "\t", header = TRUE, fill = TRUE, quote = "")
 # Rename des colonnes
-colnames(gene_annotations) <-  c("locus_tag","pan_locus_tag", "pan_gene_symbol", "symbol", "synonym", "Gene_ID")
+colnames(gene_annotations) <-  c("locus_tag", "pan_gene_symbol")
 
 # Processing des données pour le plot
 res <- as.data.frame(res)
@@ -144,17 +143,17 @@ p2 <- p2 +
     size = 6, 
     max.overlaps = 20,
     color = "black",              
-    box.padding = 1,            
+    box.padding = 4,            
     point.padding = 0.5,          
     segment.color = "black",      
-    segment.size = 2            
+    segment.size = 1            
   
   )
 
 p2 <- p2 +
   geom_point(
     data = filter(res_filtered, GeneType == "AA-tRNA Synthetase"),  
-    shape = 21, color = "black", fill = NA, size = 3, stroke = 1.2
+    shape = 21, color = "black", fill = NA, size = 2, stroke = 1.2
   )
 
 # Enregistrement des données
