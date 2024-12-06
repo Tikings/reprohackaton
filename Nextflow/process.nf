@@ -14,7 +14,7 @@ linkRefGenome = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nu
 
 // Méthode pour récupérer les données AureoWiki
 link_Aureo_wiki_php = "'https://aureowiki.med.uni-greifswald.de/extensions/AureoDownload/download.php'"
-data_aureo_request = "'gsiStrainSelection%5B%5D=NCTC8325%3A0&gsiColumnSelection%5B%5D=panlocus&gsiColumnSelection%5B%5D=pansymbol&gsiColumnSelection%5B%5D=symbol&gsiColumnSelection%5B%5D=synonym&gsiColumnSelection%5B%5D=geneGI&includeLinesWithoutData=1&download_token_hidden_field=1732555537548&button=Download+as+Text+%28.tsv%29'"
+data_aureo_request = "'gsiStrainSelection%5B%5D=NCTC8325%3A0&gsiColumnSelection%5B%5D=pansymbol&includeLinesWithoutData=1&download_token_hidden_field=1733490093889&button=Download+as+Text+%28.tsv%29'"
 
 // Nom que l'on va donner à l'index bowtie 
 params.RefName = "INDEX_S_aureus"
