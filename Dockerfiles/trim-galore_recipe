@@ -1,6 +1,0 @@
-# Base image : Ubuntu
-FROM ubuntu:22.04
-
-# Update package list and install trim-galore
-RUN apt-get update --fix-missing \
-    && apt-get install -y trim-galore
