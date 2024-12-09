@@ -64,5 +64,5 @@ ____
 
 ## Rapport
 
-Le rapport détaillé de la mise en place du workflow est contenu dans le rapport disponible ici. 
+Le rapport détaillé de la mise en place du workflow est contenu dans le rapport disponible ici et une explication détaillée du workflow est donnée dans le [ wiki ](https://github.com/Tikings/reprohackaton/wiki)
 
