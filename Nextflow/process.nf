@@ -1,5 +1,5 @@
 // Dossier pour l'enregistrement des données finales 
-params.pub_dir = "../results/"
+params.pub_dir = "./results/"
 
 // Tous les SRAIDs des données disponibles sur NCBI
 SRAIDs = [ "SRR10379721", "SRR10379722", "SRR10379723", "SRR10379724", "SRR10379725", "SRR10379726" ]
