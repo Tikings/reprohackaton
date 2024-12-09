@@ -7,7 +7,7 @@ Ce projet est réalisé dans le cadre d'une Unité d'enseignement du Master 2 AM
 Ce projet vise à reproduire certains résultats issus de [cet article](https://www.nature.com/articles/s41467-020-15966-7). 
 Les résultats à reproduire sont une analyse d'expression différentielle de *S. aureus* dans 2 conditions de stress différentes.
 
-Pour cela nous allons utiliser des outils de bio-informatique pour l'analyse de donnée de séquençage à haut-débit en tentant de rendre tout cela \ 
+Pour cela nous allons utiliser des outils de bio-informatique pour l'analyse de donnée de séquençage à haut-débit en tentant de rendre tout cela  
 le plus reproductible possible avec l'utilisation du framework [Nextflow](https://nextflow.io/) et [Docker](docker.com).
 
 ## Configuration utilisée pour l'analyse / Pré-requis
@@ -25,7 +25,7 @@ Une installation en local de nextflow et docker est également possible mais l'u
 
 ## Utilisation du workflow
 
-Pour utiliser le workflow il est suffit de copier le repertoire en local :
+Pour utiliser le workflow il suffit de copier le repertoire en local :
 
 ```sh
 git clone https://github.com/Tikings/reprohackaton.git
